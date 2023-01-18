@@ -1,6 +1,8 @@
 # spipe is already installed as conda env
 conda activate spipe
 
+#split-pipe --version
+#split-pipe v0.9.6p
 
 PBS='/data1/ivanir/Chp2022/ParseBS'
 
