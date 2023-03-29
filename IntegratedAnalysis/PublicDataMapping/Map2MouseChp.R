@@ -35,12 +35,16 @@ celltypes[grep("Neuronal progenitor LV",celltypes)] <- "Neuronal progenitor LV"
 celltypes[grep("Rspo1",celltypes)] <- "Rspo1+ LV"
 celltypes[grep("Progenitor 1",celltypes)] <- "Progenitor 1"
 celltypes[grep("Progenitor 2",celltypes)] <- "Progenitor 2"
+
 celltypes[grep("Developing pineal gland (Krt19+)",celltypes)] <- "tmp pineal gland (Krt19+)"
 celltypes[grep("Neurons 4V",celltypes)] <- "tmp 4v"
+
 celltypes[grep("Developing pineal gland",celltypes)] <- "Developing pineal gland"
 celltypes[grep("Neurons",celltypes)] <- "Neurons"
+
 celltypes[grep("tmp pineal gland (Krt19+)",celltypes)] <- "Developing pineal gland (Krt19+)"
 celltypes[grep("tmp 4v",celltypes)] <- "Neurons 4v"
+
 celltypes[grep("Macrophage",celltypes)] <- "Macrophage"
 celltypes[grep("Monocyte",celltypes)] <- "Monocyte"
 celltypes[grep("Lymphocyte",celltypes)] <- "Lymphocyte"
@@ -154,8 +158,10 @@ umap <- read.csv("umap_layout_scanpy_paga.csv",header=FALSE)
 colnames(umap) <- c("UMAP1","UMAP2")
 fa <- read.csv("fa2_layout_scanpy_paga.csv",header=FALSE)
 colnames(fa) <- c("FA1","FA2")
+faccr <- read.csv("fa2_layout_scanpy_paga_cellcyclereg.csv",header=FALSE)
+colnames(faccr) <- c("FA1ccr","FA2ccr")
 
-df_plot <- cbind(df_plot, leiden=meta$leiden, umap, fa)
+df_plot <- cbind(df_plot, leiden=meta$leiden, umap, fa, faccr)
 
 setwd("/data1/ivanir/Chp2022/ChpMouseCell2021")
 
@@ -206,3 +212,50 @@ ggplot(df_plot[plot.index,], aes(x = FA1, y = FA2, col = factor(seurat_predictio
   theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   guides(colour = guide_legend(override.aes = list(size=7)))
 ggsave("fa_map2mouse_threshold.pdf")
+
+ggplot(df_plot[plot.index,], aes(x = FA1ccr, y = FA2ccr, col = factor(seurat_prediction_cutoff))) +
+  geom_point(size = 1, shape = 16) +
+  scale_color_manual(values=celltype_colours,name = "Predicted cell type") +
+  labs(x = "Dim 1", y = "Dim 2") +
+  theme_minimal() + #theme(legend.position = "none") +
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7))) 
+ggsave("fa_map2mouse_cellcyclereg_threshold.pdf")
+
+ggplot(df_plot, aes(x=seurat.max.score)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white") + facet_wrap(~ leiden)
+ ggsave("seurat_map_score_by_leidenc.pdf")
+ 
+ 
+#######################
+#######################
+setwd("/data1/ivanir/Chp2022/Integrated/")
+
+meta <- read.csv("meta_scanpy_filtered.csv")
+
+sce_filtered <- sce[,meta$cell]
+rownames(meta) <- colnames(sce_filtered)
+
+df_plot <- data.frame(colData(sce_filtered))
+umap <- read.csv("umap_layout_scanpy_paga_filtered.csv",header=FALSE)
+colnames(umap) <- c("UMAP1","UMAP2")
+fa <- read.csv("fa2_layout_scanpy_paga_filtered.csv",header=FALSE)
+colnames(fa) <- c("FA1","FA2")
+
+df_plot <- cbind(df_plot, leiden=meta$leiden, umap, fa)
+
+setwd("/data1/ivanir/Chp2022/ChpMouseCell2021")
+
+df_plot$seurat_prediction_cutoff <- rep("-",nrow(df_plot))
+df_plot$seurat_prediction_cutoff[df_plot$seurat.max.score > .5] <- as.character(df_plot$seurat.prediction[df_plot$seurat.max.score > .5])
+plot.index <- order(df_plot$seurat_prediction_cutoff)
+
+ggplot(df_plot[plot.index,], aes(x = FA1, y = FA2, col = factor(seurat_prediction_cutoff))) +
+  geom_point(size = 1, shape = 16) +
+  scale_color_manual(values=celltype_colours, name = "Predicted cell type") +
+  theme_classic() +
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7)))
+ggsave("fa_map2mouse_threshold_filtered.pdf")
