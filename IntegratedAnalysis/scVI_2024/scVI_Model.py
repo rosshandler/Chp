@@ -82,3 +82,17 @@ sc.pl.draw_graph(
 
 sc.write("scvi_adata.h5ad",adata)
 
+adata.obs = pd.read_csv('meta_scanpy_2024.csv', sep =',', low_memory=False)
+adata.obs_names = cells
+
+sc.pl.draw_graph(
+    adata,
+    color=["celltype"],
+    frameon=False,
+)
+
+sc.pl.umap(
+    adata,
+    color=["platform"],
+    frameon=False,
+)
