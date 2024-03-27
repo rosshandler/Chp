@@ -79,3 +79,6 @@ sc.pl.draw_graph(
     color=["platform"],
     frameon=False,
 )
+
+sc.write("scvi_adata.h5ad",adata)
+
