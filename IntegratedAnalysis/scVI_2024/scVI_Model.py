@@ -67,3 +67,15 @@ sc.pl.umap(
     color=["platform"],
     frameon=False,
 )
+
+sc.write("scvi_adata.h5ad",adata)
+
+adata = sc.read("scvi_adata.h5ad")
+
+sc.tl.draw_graph(adata)
+
+sc.pl.draw_graph(
+    adata,
+    color=["platform"],
+    frameon=False,
+)
