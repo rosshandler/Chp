@@ -64,6 +64,9 @@ sce <- logNormCounts(sce)
 write.table(as.matrix(logcounts(sce)), "/data1/ivanir/Chp2022/Integrated/normalised_counts.tab",
 		quote=FALSE, row.names=FALSE, sep="\t")
 
+write.table(as.matrix(counts(sce)), "/data1/ivanir/Chp2022/Integrated/counts.tab",
+		quote=FALSE, row.names=FALSE, sep="\t")
+
 ###
 ###
 sce  <- readRDS("/data1/ivanir/Chp2022/Integrated/sce.rds")
