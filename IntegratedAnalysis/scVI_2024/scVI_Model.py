@@ -82,6 +82,8 @@ sc.pl.draw_graph(
 
 sc.write("scvi_adata.h5ad",adata)
 
+adata = sc.read("scvi_adata.h5ad")
+
 adata.obs = pd.read_csv('meta_scanpy_2024.csv', sep =',', low_memory=False)
 adata.obs_names = cells
 
@@ -96,3 +98,84 @@ sc.pl.umap(
     color=["platform"],
     frameon=False,
 )
+
+##################
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+fig = sc.pl.umap(adata, color=["celltype"], return_fig=True)
+ax = fig.axes[0]
+# Remove original Legend
+ax.legend_.remove()
+# Make new Legend
+l1 = ax.legend(
+    # Add Legend element for each color group
+    handles=[
+        # Instead of Line2D we can also use other matplotlib objects, such as Patch, etc.
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color=c,
+            lw=0,
+            label=l,
+            markerfacecolor=c,
+            markersize=7,
+        )
+        # Color groups in adata
+        for l, c in zip(
+            list(adata.obs.celltype.cat.categories), adata.uns["celltype_colors"]
+        )
+    ],
+    # Customize Legend outline
+    # Remove background
+    frameon=False,
+    # Make more Legend columns
+    ncols=1,
+    # Change location to not overlap with the plot
+    bbox_to_anchor=(1, 1),
+    # Set title
+    title="Cell type",
+)
+#plt.figure(figsize=(10, 6)
+plt.subplots_adjust(right=.6)  # Increase the right margin to make space for the legend
+
+plt.show()
+
+fig = sc.pl.draw_graph(adata, color=["celltype"], return_fig=True)
+ax = fig.axes[0]
+# Remove original Legend
+ax.legend_.remove()
+# Make new Legend
+l1 = ax.legend(
+    # Add Legend element for each color group
+    handles=[
+        # Instead of Line2D we can also use other matplotlib objects, such as Patch, etc.
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color=c,
+            lw=0,
+            label=l,
+            markerfacecolor=c,
+            markersize=7,
+        )
+        # Color groups in adata
+        for l, c in zip(
+            list(adata.obs.celltype.cat.categories), adata.uns["celltype_colors"]
+        )
+    ],
+    # Customize Legend outline
+    # Remove background
+    frameon=False,
+    # Make more Legend columns
+    ncols=1,
+    # Change location to not overlap with the plot
+    bbox_to_anchor=(1, 1),
+    # Set title
+    title="Cell type",
+)
+plt.subplots_adjust(right=.6)  # Increase the right margin to make space for the legend
+
+plt.show()
